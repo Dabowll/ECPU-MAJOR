@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSC Interactive Timetable</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<nav class="hsc-navbar">
+    <div class="navbar-container">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-graduation-cap"></i> HSC Study Hub
+        </a>
+        
+        <div class="navbar-links">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="planner.html" class="nav-link">
+                <i class="fas fa-robot"></i> AI Planner
+            </a>
+            <a href="progress.html" class="nav-link">
+                <i class="fas fa-chart-line"></i> Accountability
+            </a>
+        </div>
+        
+        <div class="navbar-mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+</nav>
+    
+   
+    <div class="container">
+        <h1>HSC Interactive Timetable</h1>
+        <h2 id="weekTitle">Week A Schedule</h2> <!-- This is the title that will change -->
+        
+        <button id="themeToggle">🌙 Dark Mode</button>
+        <button id="weekToggle">Switch to Week B</button>
+        
+        <!-- Week A -->
+        <table id="weekA">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>9:00 - 10:00</td> <td class="subject maths" data-subject="Maths Advanced">Maths Advanced</td> <td class="subject history" data-subject="Ancient History">Ancient History</td> <td class="subject Free">Free Period</td> <td class="subject english" data-subject="English Standard">English Standard</td> <td class="subject Free">Free Period</td></tr>
+                <tr><td>10:05 - 11:05</td> <td class="subject hospitality" data-subject="Hospitality">Hospitality</td> <td class="subject Free">Free Period</td> <td class="subject Free">Free Period</td> <td class="subject enterprise" data-subject="Enterprise Computing">Enterprise Computing</td> <td class="subject maths" data-subject="Maths Advanced">Maths Advanced</td></tr>
+                <tr><td colspan="6" class="break">☕ Recess Break</td></tr>
+                <tr><td>11:25 - 12:25</td> <td class="Free">Free Period</td> <td class="subject english" data-subject="English Standard">English Standard</td> <td class="subject enterprise" data-subject="Enterprise Computing">Enterprise Computing</td> <td class="hospitality" data-subject="Hospitality">Hospitality</td> <td class="hospitality" data-subject="Hospitality">Hospitality</td></tr>
+                <tr><td>12:30 - 1:30</td> <td class="subject enterprise" data-subject="Enterprise Computing">Enterprise Computing</td> <td class="subject Free">Assembly</td> <td class="subject Free">Home</td> <td class="subject history" data-subject="Ancient History">Ancient History</td> <td class="subject history" data-subject="Ancient History">Ancient History</td></tr>
+                <tr><td colspan="6" class="break">🍽️ Lunch Break</td></tr>
+                <tr><td>2:10 - 3:10</td> <td class="subject english" data-subject="English Standard">English Standard</td> <td class="subject Free">Home</td> <td class="subject Free">Home</td> <td class="subject maths" data-subject="Maths Advanced">Maths Advanced</td> <td class="subject english" data-subject="English Standard">English Standard</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Week B (Initially hidden) -->
+        <table id="weekB" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>9:00 - 10:00</td> <td class="subject maths">Maths Advanced</td> <td class="subject maths">Maths Advanced</td> <td class="subject hospitality">Hospitality</td> <td class="subject hospitality">Hospitality</td> <td class="subject hospitality">Hospitality</td></tr>
+                <tr><td>10:05 - 11:05</td> <td class="subject english">English Standard</td> <td class="subject Free">Free Period</td> <td class="subject english">English Standard</td> <td class="subject english">English Standard</td> <td class="subject enterprise">Enterprise Computing</td></tr>
+                <tr><td colspan="6" class="break">☕ Recess Break</td></tr>
+                <tr><td>11:25 - 12:25</td> <td class="subject Free">Free Period</td> <td class="subject history">Ancient History</td> <td class="subject maths">Maths Advanced</td> <td class="subject enterprise">Enterprise Computing</td> <td class="subject maths">Maths Advanced</td></tr>
+                <tr><td>12:30 - 1:30</td> <td class="subject history">Ancient History</td> <td class="subject Free">Home</td> <td class="subject Free">Home</td> <td class="subject history">Ancient History</td> <td class="subject history">Ancient History</td></tr>
+                <tr><td colspan="6" class="break">🍽️ Lunch Break</td></tr>
+                <tr><td>2:10 - 3:10</td> <td class="subject enterprise">Enterprise Computing</td> <td class="subject Free">Home</td> <td class="subject Free">Home</td> <td class="subject Free">Home</td> <td class="subject Free">Home</td></tr>
+            </tbody>
+        </table>
+
+<!-- Task Input System -->
+<div class="task-input-container">
+    <select id="subjectSelect">
+        <option value="enterprise">Enterprise Computing</option>
+        <option value="hospitality">Hospitality</option>
+        <option value="history">History</option>
+        <option value="maths">Maths Advanced</option>
+        <option value="english">English Standard</option>
+        <option value="free">Free</option>
+    </select>
+    <input type="text" id="taskInput" placeholder="Enter a task...">
+    <input type="date" id="taskDate">
+    <button id="addTaskButton">Add Task</button>
+</div>
+
+<!-- Task Folders -->
+<div class="task-folder-container">
+    <div class="folder enterprise" id="enterprise-folder">
+        <span>Enterprise Computing</span>
+        <div class="task-list"></div>
+    </div>
+    <div class="folder hospitality" id="hospitality-folder">
+        <span>Hospitality</span>
+        <div class="task-list"></div>
+    </div>
+    <div class="folder history" id="history-folder">
+        <span>History</span>
+        <div class="task-list"></div>
+    </div>
+    <div class="folder maths" id="maths-folder">
+        <span>Maths Advanced</span>
+        <div class="task-list"></div>
+    </div>
+    <div class="folder english" id="english-folder">
+        <span>English Standard</span>
+        <div class="task-list"></div>
+    </div>
+    <div class="folder free" id="free-folder">
+        <span>Free Period</span>
+        <div class="task-list"></div>
+    </div>
+</div>
+
+
+
+
+<div class="countdown-container">
+    <h2>Countdown to HSC Start</h2>
+    <div id="countdown" class="countdown">
+        <div class="digit-container">
+            <div class="digit"><span id="days">00</span></div>
+            <div class="countdown-label">Days</div>
+        </div>
+        <div class="digit-container">
+            <div class="digit"><span id="hours">00</span></div>
+            <div class="countdown-label">Hours</div>
+        </div>
+        <div class="digit-container">
+            <div class="digit"><span id="minutes">00</span></div>
+            <div class="countdown-label">Minutes</div>
+        </div>
+        <div class="digit-container">
+            <div class="digit"><span id="seconds">00</span></div>
+            <div class="countdown-label">Seconds</div>
+        </div>
+    </div>
+</div>
+
+    <script src="script.js"></script>
+
+    
+</body>
+</html>
+

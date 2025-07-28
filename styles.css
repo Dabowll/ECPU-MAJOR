@@ -1,0 +1,520 @@
+/* 🌟 Default Light Theme */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+    transition: background 0.5s, color 0.5s;
+}
+
+h1 {
+    color: #222;
+    font-size: 2rem;
+}
+
+/* 📌 Central Container */
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* 🖱️ Buttons */
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #444;
+    color: white;
+    border-radius: 5px;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #666;
+    transform: scale(1.05);
+}
+
+/* 📊 Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+}
+
+table:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+th, td {
+    border: 2px solid #ddd;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    vertical-align: top;
+    width: 16.6%;
+    background-color: #f2f2f2;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+th {
+    background: linear-gradient(145deg, #444, #666);
+    color: white;
+    border-bottom: 3px solid #333;
+}
+
+/* Fixed hover colors - now uses darker shades of original colors */
+td:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* 📌 Subject Box Styles */
+.subject {
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 15px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    font-weight: bold;
+    min-height: 60px;
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+}
+
+/* 🎨 Subject Colors with Additional Depth - Updated to more vibrant colors */
+.enterprise { background: #ff6b6b; } 
+.hospitality { background: #ff9e7d; }
+.history { background: #7ae582; }
+.maths { background: #f9cb40; }
+.english { background: #6ec3f7; }
+.Free { background: #a1aee7; }
+
+/* Hover states - now uses 20% darker versions of the base colors */
+.enterprise:hover { background: #e05555; }
+.hospitality:hover { background: #e58b6a; }
+.history:hover { background: #5acd6a; }
+.maths:hover { background: #e6b730; }
+.english:hover { background: #4daee6; }
+.Free:hover { background: #8a9ae1; }
+
+/* 🎭 Hover Effect - Subject Hover */
+.subject:hover {
+    z-index: 10;
+    animation: floatBounce 0.6s ease-in-out;
+    transform: scale(1.05);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+/* Remove the yellow hover effect from table cells */
+td:hover {
+    background-color: inherit;
+}
+
+/* 🌈 Shared Subject Base */
+.subject::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* 📘 Individual Hover Overlay Colors - Updated to match new color scheme */
+.subject.maths::after {
+    background-color: rgba(249, 203, 64, 0.6);
+}
+
+.subject.hospitality::after {
+    background-color: rgba(255, 158, 125, 0.6);
+}
+
+.subject.enterprise::after {
+    background-color: rgba(255, 107, 107, 0.6);
+}
+
+.subject.history::after {
+    background-color: rgba(122, 229, 130, 0.6);
+}
+
+.subject.english::after {
+    background-color: rgba(110, 195, 247, 0.6);
+}
+
+.subject.Free::after {
+    background-color: rgba(161, 174, 231, 0.6);
+}
+
+/* ✨ On Hover: Show Overlay */
+.subject:hover::after {
+    opacity: 1;
+}
+
+/* 🪄 Ensure Foreground Content Stays on Top */
+.subject > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Floating Bounce Animation */
+@keyframes floatBounce {
+    0% { transform: translateY(0) scale(1); }
+    25% { transform: translateY(-10px) scale(1.1); }
+    50% { transform: translateY(5px) scale(0.9); }
+    75% { transform: translateY(-5px) scale(1.1); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+/* Smooth Enlargement */
+@keyframes enlarge {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); } /* Slightly reduce the scale for a smoother effect */
+}
+
+/* 📂 Folder (File Box Style) */
+.task-folder-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Folder Styles */
+.folder {
+    width: 150px;
+    height: 120px;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    padding: 10px;
+    border: 3px solid #949494;
+    background-color: rgba(255, 255, 255, 0.8); /* Lightened folder background */
+}
+
+.folder:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Less Intense Folder Colors */
+.folder.enterprise {
+    background: rgba(255, 153, 153, 0.6);
+}
+
+.folder.hospitality {
+    background: rgba(255, 204, 153, 0.6);
+}
+
+.folder.history {
+    background: rgba(153, 255, 153, 0.6);
+}
+
+.folder.maths {
+    background: rgba(255, 255, 153, 0.6);
+}
+
+.folder.english {
+    background: rgba(153, 204, 255, 0.6);
+}
+
+.folder.Free {
+    background: rgba(161, 174, 231, 0.6);
+}
+
+.folder::before {
+    content: "📂";
+    font-size: 40px;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+/* Open Folder Style */
+.folder.open-folder.hospitality {
+    transform: scale(1.1);
+    background-color: rgba(237, 119, 0, 0.6);
+}
+.folder.open-folder.enterprise {
+    transform: scale(1.1);
+    background-color: rgba(255, 19, 19, 0.6);
+}
+.folder.open-folder.english {
+    transform: scale(1.1);
+    background-color: rgba(23, 139, 255, 0.6);
+} 
+.folder.open-folder.maths {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 0, 0.6);
+}
+.folder.open-folder.history {
+    transform: scale(1.1);
+    background-color: rgba(0, 252, 0, 0.6);
+}
+
+.folder.open-folder.Free {
+    transform: scale(1.1);
+    background-color: rgba(0, 47, 255, 0.6);
+}
+
+
+.folder.open-folder .task-list {
+    display: block;
+}
+
+/* Task List inside Folder */
+.task-list {
+    display: none;
+    margin-top: 10px;
+    background: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.task-item {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-date {
+    display: block;
+    font-size: 12px;
+    color: gray;
+    margin-top: 2px;
+}
+
+/* 🌙 Dark Mode */
+.dark-mode {
+    background: #222;
+    color: white;
+}
+
+.dark-mode th {
+    background: #555;
+}
+
+.dark-mode td {
+    border: 2px solid #444;
+}
+
+.dark-mode .subject {
+    color: white;
+}
+
+.dark-mode button {
+    background-color: #666;
+}
+
+.dark-mode button:hover {
+    background-color: #888;
+}
+
+.dark-mode table {
+    border-color: #444;
+}
+
+.dark-mode th, .dark-mode td {
+    color: white;
+    border-color: #666;
+}
+
+.dark-mode .subject .task-list li {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode .subject .task-list li:hover {
+    background: #ff4c4c;
+    color: white;
+}
+
+.countdown-container {
+    width: 80%;
+    padding: 20px;
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin: 40px auto 0 auto; /* ⬅️ Adds spacing and centers it */
+}
+
+.countdown {
+    display: flex;
+    gap: 15px;
+}
+
+/* Individual Time Unit Styling */
+.digit-container {
+    text-align: center;
+}
+
+.digit {
+    font-size: 2rem;
+    font-weight: bold;
+    display: inline-block;
+    background: black;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: inset 0 -4px 6px rgba(255, 255, 255, 0.2);
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Flip Effect */
+.digit span {
+    position: absolute;
+    animation: flip 0.8s ease-in-out;
+}
+
+@keyframes flip {
+    0% { transform: rotateX(0deg); opacity: 1; }
+   
+}
+
+.countdown-label {
+    font-size: 1.2rem;
+    margin-top: 5px;
+    color: #ffffff;
+}
+
+/* Navbar Styles */
+.hsc-navbar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.navbar-brand {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand i {
+    margin-right: 10px;
+    font-size: 1.8rem;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link i {
+    margin-right: 8px;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #3498db;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.navbar-mobile-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+/* Active page indicator */
+a[href*="planner.html"].nav-link {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 1rem;
+    }
+    
+    .navbar-links {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        flex-direction: column;
+        background-color: #2c3e50;
+        width: 100%;
+        padding: 1rem 0;
+        transition: all 0.5s ease;
+    }
+    
+    .navbar-links.active {
+        left: 0;
+    }
+    
+    .nav-link {
+        padding: 1rem 2rem;
+    }
+    
+    .navbar-mobile-toggle {
+        display: block;
+    }
+}

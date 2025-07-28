@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Study Planner</title>
+    <link rel="stylesheet" href="planner.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Add Chart.js before other scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="container">
+            <a href="index.html"><i class="fas fa-calendar-alt"></i> Timetable</a>
+            <a href="planner.html" class="active"><i class="fas fa-robot"></i> Smart Study Planner</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <h1><i class="fas fa-brain"></i> Smart Study Planner</h1>
+            <p class="subtitle">Generate personalized study plans based on your exam schedule</p>
+
+            <div class="input-section">
+                <h2><i class="fas fa-calendar-check"></i> Enter Your Exam Dates</h2>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="AdvDate">Math Advanced</label>
+                        <input type="date" id="AdvDate" />
+                    </div>
+                    <div class="input-group">
+                        <label for="englishDate">English Standard</label>
+                        <input type="date" id="englishDate" />
+                    </div>
+                    <div class="input-group">
+                        <label for="AncientHistoryDate">Ancient History</label>
+                        <input type="date" id="AncientHistoryDate" />
+                    </div>
+                    <div class="input-group">
+                        <label for="ECPUDate">Enterprise Computing</label>
+                        <input type="date" id="ECPUDate" />
+                    </div>
+                    <div class="input-group">
+                        <label for="Hospitality">Hospitality</label>
+                        <input type="date" id="Hospitality" />
+                    </div>
+                </div>
+
+                <h2><i class="fas fa-sliders-h"></i> Study Preferences</h2>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="hours">Daily Study Hours</label>
+                        <input type="number" id="hours" min="1" max="12" value="2" />
+                    </div>
+                    <div class="input-group">
+                        <label for="difficulty">Difficulty Level</label>
+                        <select id="difficulty">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate" selected>Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="goals">Study Goals</label>
+                        <input type="text" id="goals" placeholder="Enter your specific goals" />
+                    </div>
+                </div>
+
+                <!-- New Study Priority Predictor UI -->
+                <div class="input-group" style="margin-top:20px;">
+                    <h2><i class="fas fa-chart-line"></i> Study Priority Predictor</h2>
+                    <label for="priorityHours">Planned Study Hours:</label>
+                    <input
+                      type="number"
+                      id="priorityHours"
+                      min="0"
+                      max="12"
+                      value="2"
+                      step="0.1"
+                    />
+                    <button id="predictPriorityBtn" style="margin-left:10px;">
+                      Predict Priority
+                    </button>
+                    <p
+                      id="priorityOutput"
+                      style="margin-top:10px; font-weight:bold;"
+                    >
+                      Priority will appear here
+                    </p>
+                </div>
+
+                <button id="generatePlanBtn" class="generate-btn">
+                    <i class="fas fa-magic"></i> Generate Smart Plan
+                </button>
+            </div>
+
+            <div class="plan-section">
+                <h2><i class="fas fa-tasks"></i> Your Personalized Study Plan</h2>
+                <div class="plan-tabs">
+                    <button class="tab-btn active" data-tab="schedule">Schedule</button>
+                    <button class="tab-btn" data-tab="analytics">Analytics</button>
+                    <button class="tab-btn" data-tab="resources">Resources</button>
+                    <button class="tab-btn" data-tab="studyTips">Study Tips</button>
+                </div>
+
+                <div id="studyPlanOutput" class="plan-output">
+                    <div id="schedule" class="tab-content active"></div>
+                    <div id="analytics" class="tab-content">
+                        <div class="analytics-container">
+                            <h3><i class="fas fa-chart-pie"></i> Time Allocation Analysis</h3>
+                            <div class="pie-chart-container">
+                                <canvas id="timeAllocationChart"></canvas>
+                            </div>
+                            <div class="analytics-breakdown">
+                                <h4>Daily Time Breakdown</h4>
+                                <div class="breakdown-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resources" class="tab-content">
+                        <div class="resources-container">
+                            <h3><i class="fas fa-book"></i> Study Resources</h3>
+                            <div class="resource-sections"></div>
+                        </div>
+                    </div>
+                    <div id="studyTips" class="tab-content">
+                        <div class="study-tips-container">
+                            <h3><i class="fas fa-lightbulb"></i> Smart Study Strategies</h3>
+                            <div class="tips-sections">
+                                <!-- Tips sections will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="planner.js"></script>
+
+    <!-- TensorFlow.js Study Priority Predictor Script -->
+    <script>
+      // Create and compile the model
+      const priorityModel = tf.sequential();
+      priorityModel.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+      priorityModel.compile({ loss: "meanSquaredError", optimizer: "sgd" });
+
+      // Training data: study hours vs priority score (simple linear relation)
+      const xs = tf.tensor2d([0, 1, 2, 3, 4, 5], [6, 1]);
+      const ys = tf.tensor2d([1, 3, 5, 7, 9, 11], [6, 1]);
+
+      async function trainPriorityModel() {
+        await priorityModel.fit(xs, ys, { epochs: 50 });
+        console.log("Priority model trained");
+      }
+
+      trainPriorityModel();
+
+      document
+        .getElementById("predictPriorityBtn")
+        .addEventListener("click", () => {
+          const hoursInput = parseFloat(
+            document.getElementById("priorityHours").value
+          );
+          if (isNaN(hoursInput) || hoursInput < 0) {
+            document.getElementById("priorityOutput").innerText =
+              "Please enter a valid study hour.";
+            return;
+          }
+          const inputTensor = tf.tensor2d([hoursInput], [1, 1]);
+          const prediction = priorityModel.predict(inputTensor);
+          const priority = prediction.dataSync()[0];
+          document.getElementById("priorityOutput").innerText = `Predicted Study Priority: ${priority.toFixed(
+            2
+          )}`;
+        });
+    </script>
+</body>
+</html>
