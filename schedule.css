@@ -1,0 +1,204 @@
+/* General Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: #fff;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #fff;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #dcdcdc;
+}
+
+/* Dark Mode Toggle Button */
+#darkModeToggle {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+#darkModeToggle:hover {
+    background-color: #e68900;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    background: linear-gradient(to right, #333, #444);
+    color: #ffffff;
+}
+
+body.dark-mode header h1,
+body.dark-mode .subtitle,
+body.dark-mode label {
+    color: #dcdcdc;
+}
+
+body.dark-mode .container {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .primary-button {
+    background-color: #4caf50;
+}
+
+body.dark-mode .primary-button:hover {
+    background-color: #388e3c;
+}
+
+body.dark-mode .remove-button {
+    background-color: #ff4c4c;
+}
+
+body.dark-mode .remove-button:hover {
+    background-color: #ff1c1c;
+}
+
+/* Container */
+.container {
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    animation: fadeIn 1.2s ease;
+    width: 100%;
+}
+
+/* Forms and Buttons */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+input, select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.primary-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.primary-button:hover {
+    background-color: #388e3c;
+}
+
+/* Remove Button */
+button.remove-button {
+    margin-left: 10px;
+    background-color: #ff4c4c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+button.remove-button:hover {
+    background-color: #ff1c1c;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+/* Timer */
+#timerDisplay {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+#timer {
+    font-size: 2.5rem;
+    margin-top: 10px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+/* Import and Export Button Styles */
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Space between Labels and Inputs */
+label {
+    font-size: 1rem;
+    color: #dcdcdc;
+}
+
+/* Adjust spacing for select and input fields */
+select, input[type="time"] {
+    width: 100%;
+    padding: 10px;
+}
+
+/* Improve overall form layout */
+form label {
+    margin-bottom: 5px;
+}
+
+form input,
+form select {
+    margin-bottom: 20px;
+}
