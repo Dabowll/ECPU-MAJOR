@@ -137,7 +137,7 @@ const knowledgeBank = {
     }
 };
 
-// Helper functions
+// Helper function to calculate time breakdown
 function getTimeBreakdown(subject, hours, daysUntilExam, totalDays) {
     const phase = daysUntilExam / totalDays;
     const phaseType = phase > 0.6 ? 'early' : phase > 0.3 ? 'mid' : 'late';
@@ -182,402 +182,159 @@ function formatTime(decimalHours) {
 }
 
 function generatePlan() {
-    try {
-        // Get exam dates
-        const examDates = {
-            mathDate: new Date(document.getElementById('AdvDate').value),
-            englishDate: new Date(document.getElementById('englishDate').value),
-            historyDate: new Date(document.getElementById('AncientHistoryDate').value),
-            computingDate: new Date(document.getElementById('ECPUDate').value),
-            hospitalityDate: new Date(document.getElementById('Hospitality').value)
-        };
+    // Get all exam dates and inputs
+    const mathDate = new Date(document.getElementById('AdvDate').value);
+    const englishDate = new Date(document.getElementById('englishDate').value);
+    const historyDate = new Date(document.getElementById('AncientHistoryDate').value);
+    const computingDate = new Date(document.getElementById('ECPUDate').value);
+    const hospitalityDate = new Date(document.getElementById('Hospitality').value);
+    const dailyHours = parseFloat(document.getElementById('hours').value) || 2;
+    const difficulty = document.getElementById('difficulty').value;
+    const goals = document.getElementById('goals').value;
 
-        // Validate that at least one date is valid
-        const validDates = Object.values(examDates).filter(date => !isNaN(date.getTime()));
-        if (validDates.length === 0) {
-            throw new Error('Please enter at least one exam date');
-        }
-
-        const dailyHours = Math.max(1, Math.min(12, parseFloat(document.getElementById('hours').value) || 2));
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Create subjects array with valid dates
-        const subjects = [
-            { name: "Math Advanced", date: examDates.mathDate, priority: 5 },
-            { name: "English Standard", date: examDates.englishDate, priority: 4 },
-            { name: "Ancient History", date: examDates.historyDate, priority: 3 },
-            { name: "Enterprise Computing", date: examDates.computingDate, priority: 2 },
-            { name: "Hospitality", date: examDates.hospitalityDate, priority: 1 }
-        ].filter(subject => !isNaN(subject.date.getTime()));
-
-        // Add daysLeft to each subject
-        subjects.forEach(subject => {
-            subject.daysLeft = Math.floor((subject.date - today) / (1000 * 60 * 60 * 24));
-            subject.totalDays = subject.daysLeft;
-        });
-
-        // Sort subjects by proximity to exam date
-        subjects.sort((a, b) => a.daysLeft - b.daysLeft);
-
-        // Generate the plan content
-        const plan = generatePlanContent(subjects, dailyHours, today);
-
-        // Create tabbed interface
-        document.getElementById('studyPlanOutput').innerHTML = `
-            <div class="tab-container">
-                <div class="tab-buttons">
-                    <button class="tab-btn active" data-tab="schedule">Schedule</button>
-                    <button class="tab-btn" data-tab="analytics">Analytics</button>
-                    <button class="tab-btn" data-tab="resources">Resources</button>
-                    <button class="tab-btn" data-tab="studyTips">Study Tips</button>
-                </div>
-                
-                <div id="schedule" class="tab-content active">
-                    ${plan}
-                </div>
-
-                <div id="analytics" class="tab-content">
-                    ${generateAnalytics(subjects, dailyHours)}
-                </div>
-
-                <div id="resources" class="tab-content">
-                    <div class="resources-container">
-                        <h3><i class="fas fa-book"></i> Study Resources</h3>
-                        ${subjects.map(subject => `
-                            <div class="resource-section">
-                                <h4>${subject.name}</h4>
-                                <div class="resource-links">
-                                    ${getSubjectResources(subject.name)}
-                                </div>
-                                <div class="resource-tools">
-                                    <h5>Recommended Tools</h5>
-                                    ${getSubjectTools(subject.name)}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div id="studyTips" class="tab-content">
-                    ${generateStudyTips()}
-                </div>
-            </div>`;
-
-        // Initialize charts and tabs
-        setTimeout(() => {
-            initializeCharts(subjects, dailyHours);
-            initializeTabListeners();
-        }, 0);
-
-    } catch (error) {
-        document.getElementById('studyPlanOutput').innerHTML = 
-            `<div class='alert alert-danger'>${error.message}</div>`;
-        console.error('Plan generation error:', error);
+    // Validate dates
+    const subjects = [
+        { name: "Math Advanced", date: mathDate, priority: 5 },
+        { name: "English Standard", date: englishDate, priority: 4 },
+        { name: "Ancient History", date: historyDate, priority: 3 },
+        { name: "Enterprise Computing", date: computingDate, priority: 2 },
+        { name: "Hospitality", date: hospitalityDate, priority: 1 }
+    ];
+    
+    const validSubjects = subjects.filter(subject => !isNaN(subject.date.getTime()));
+    
+    if (validSubjects.length === 0) {
+        document.getElementById('studyPlanOutput').innerHTML = "<div class='alert alert-danger'>Please enter at least one exam date.</div>";
+        return;
     }
-}
-
-// Add these helper functions
-function generateAnalytics(subjects, dailyHours) {
-    const totalWeight = subjects.reduce((sum, s) => sum + (1 / s.daysLeft) * s.priority, 0);
-    const analyticsData = subjects.map(subject => ({
-        name: subject.name,
-        allocation: ((1 / subject.daysLeft) * subject.priority / totalWeight) * dailyHours,
-        percentage: ((1 / subject.daysLeft) * subject.priority / totalWeight) * 100
-    }));
-
-    return `
-        <div class="analytics-container">
-            <h3><i class="fas fa-chart-pie"></i> Time Allocation Analysis</h3>
-            <div class="pie-chart-container">
-                <canvas id="timeAllocationChart"></canvas>
-            </div>
-            <div class="analytics-breakdown">
-                <h4>Daily Time Breakdown</h4>
-                <div class="breakdown-list">
-                    ${analyticsData.map(subject => `
-                        <div class="breakdown-item">
-                            <div class="subject-label">${subject.name}</div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: ${subject.percentage}%"></div>
-                            </div>
-                            <div class="time-value">${subject.allocation.toFixed(1)}h (${subject.percentage.toFixed(1)}%)</div>
-                        </div>
-                    `).join('')}
-                </div>
+    
+    // Calculate days until each exam and sort by proximity
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    validSubjects.forEach(subject => {
+        subject.daysLeft = Math.floor((subject.date - today) / (1000 * 60 * 60 * 24));
+        subject.totalDays = subject.daysLeft; // Store total days for progress calculation
+    });
+    
+    validSubjects.sort((a, b) => a.daysLeft - b.daysLeft);
+    
+    // Calculate total study days
+    const examDates = validSubjects.map(s => s.date);
+    const lastExam = new Date(Math.max(...examDates));
+    const totalDays = Math.floor((lastExam - today) / (1000 * 60 * 60 * 24));
+    
+    // Generate daily plan
+    let plan = `<div class='study-plan-container'>
+        <h3><i class='fas fa-calendar-alt'></i> Multi-Subject Study Schedule</h3>
+        <div class='plan-meta'>
+            <span><i class='fas fa-clock'></i> ${dailyHours} study hours/day</span>
+            <span><i class='fas fa-school'></i> School: 9:00 AM - 3:30 PM</span>
+            <span><i class='fas fa-bed'></i> Wake-up: 6:00 AM</span>
+            <span><i class='fas fa-book'></i> Subjects: ${validSubjects.map(s => s.name).join(', ')}</span>
+        </div>
+        <div class='subject-priorities'>
+            <h4><i class='fas fa-sort-amount-down'></i> Exam Priority Order</h4>
+            <ol>`;
+            
+    validSubjects.forEach((subject, index) => {
+        plan += `<li>${subject.name} (${subject.date.toDateString()} - ${subject.daysLeft} days)</li>`;
+    });
+            
+    plan += `</ol></div>`;
+    
+    // Generate subject overview with knowledge bank content
+    plan += `<div class='knowledge-summary'>
+        <h4><i class='fas fa-graduation-cap'></i> Subject Overview & Study Strategies</h4>`;
+    
+    validSubjects.forEach(subject => {
+        const subjectData = knowledgeBank[subject.name] || { topics: [], tips: [] };
+        plan += `<div class='subject-info'>
+            <h5>${subject.name} Study Guide</h5>
+            <div><strong>Key Topics:</strong> ${subjectData.topics.join(', ')}</div>
+            <div><strong>Expert Tips:</strong>
+                <ul>${subjectData.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>
             </div>
         </div>`;
-}
-
-// Helper function to initialize charts
-function initializeCharts(subjects, dailyHours) {
-    setTimeout(() => {
-        const ctx = document.getElementById('timeAllocationChart')?.getContext('2d');
-        if (ctx) {
-            const totalWeight = subjects.reduce((sum, s) => sum + (1 / s.daysLeft) * s.priority, 0);
-            const analyticsData = subjects.map(subject => ({
-                name: subject.name,
-                allocation: ((1 / subject.daysLeft) * subject.priority / totalWeight) * dailyHours
-            }));
-
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: analyticsData.map(subject => subject.name),
-                    datasets: [{
-                        data: analyticsData.map(subject => subject.allocation),
-                        backgroundColor: [
-                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                            '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-        }
-    }, 0);
-}
-
-// Helper function to initialize tab listeners
-function initializeTabListeners() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            document.getElementById(this.getAttribute('data-tab'))?.classList.add('active');
-        });
     });
-}
-
-// TensorFlow initialization
-function initializeTensorFlow() {
-    const tfData = {
-        xs: tf.tensor2d([
-            [3, 7], [5, 8], [4, 6], [6, 9], [2, 5],
-            [7, 8], [3, 6], [5, 7], [4, 6], [6, 9]
-        ], [10, 2]),
-        ys: tf.tensor2d([
-            [5.2], [6.3], [5.1], [7.4], [4.0],
-            [6.8], [5.0], [6.0], [5.2], [7.5]
-        ], [10, 1])
-    };
-
-    const model = tf.sequential();
-    model.add(tf.layers.dense({ units: 1, inputShape: [2] }));
-    model.compile({ optimizer: 'sgd', loss: 'meanSquaredError' });
-
-    // Train model and set up prediction
-    model.fit(tfData.xs, tfData.ys, { epochs: 50 }).then(() => {
-        document.getElementById('predictPriorityBtn')?.addEventListener('click', async () => {
-            const hours = parseFloat(document.getElementById('priorityHours').value) || 0;
-            const prediction = await model.predict(tf.tensor2d([[hours, 7]], [1, 2]));
-            document.getElementById('priorityOutput').innerText = 
-                `Predicted Study Priority: ${prediction.dataSync()[0].toFixed(2)}`;
-        });
-    });
-}
-
-// Fix resource definitions
-function getSubjectResources(subject) {
-    const resources = {
-        "Math Advanced": `
-            <a href="https://www.khanacademy.org/math" target="_blank">
-                <i class="fas fa-external-link-alt"></i> Khan Academy Math
-            </a>
-            <a href="https://www.wolframalpha.com/" target="_blank">
-                <i class="fas fa-calculator"></i> Wolfram Alpha
-            </a>
-            <a href="https://www.mathway.com/" target="_blank">
-                <i class="fas fa-square-root-alt"></i> Mathway
-            </a>
-        `,
-        "English Standard": `
-            <a href="https://www.grammarly.com/" target="_blank">
-                <i class="fas fa-spell-check"></i> Grammarly
-            </a>
-            <a href="https://owl.purdue.edu/" target="_blank">
-                <i class="fas fa-book"></i> Purdue OWL
-            </a>
-        `,
-        "Ancient History": `
-            <a href="https://www.ancient.eu/" target="_blank">
-                <i class="fas fa-landmark"></i> Ancient History Encyclopedia
-            </a>
-            <a href="https://www.perseus.tufts.edu/" target="_blank">
-                <i class="fas fa-scroll"></i> Perseus Digital Library
-            </a>
-        `,
-        "Enterprise Computing": `
-            <a href="https://www.w3schools.com/" target="_blank">
-                <i class="fas fa-code"></i> W3Schools
-            </a>
-            <a href="https://www.codecademy.com/" target="_blank">
-                <i class="fas fa-laptop-code"></i> Codecademy
-            </a>
-        `,
-        "Hospitality": `
-            <a href="https://www.foodnetwork.com/" target="_blank">
-                <i class="fas fa-utensils"></i> Food Network
-            </a>
-            <a href="https://www.servsafe.com/" target="_blank">
-                <i class="fas fa-shield-alt"></i> ServSafe
-            </a>
-        `
-    };
-    return resources[subject] || '<p>Resources coming soon...</p>';
-}
-
-// Helper function for subject resources
-function getSubjectResources(subject) {
-    const resources = {
-        "Math Advanced": `
-            <a href="https://www.khanacademy.org/math" target="_blank"><i class="fas fa-external-link-alt"></i> Khan Academy Math</a>
-            <a href="https://www.wolframalpha.com/" target="_blank"><i class="fas fa-calculator"></i> Wolfram Alpha</a>
-            <a href="https://www.mathway.com/" target="_blank"><i class="fas fa-square-root-alt"></i> Mathway</a>
-        `,
-        "English Standard": `
-            <a href="https://www.grammarly.com/" target="_blank"><i class="fas fa-spell-check"></i> Grammarly</a>
-            <a href="https://owl.purdue.edu/" target="_blank"><i class="fas fa-book"></i> Purdue OWL</a>
-        `,
-        "Ancient History": `
-            <a href="https://www.ancient.eu/" target="_blank"><i class="fas fa-landmark"></i> Ancient History Encyclopedia</a>
-            <a href="https://www.perseus.tufts.edu/" target="_blank"><i class="fas fa-scroll"></i> Perseus Digital Library</a>
-        `,
-        "Enterprise Computing": `
-            <a href="https://www.w3schools.com/" target="_blank"><i class="fas fa-code"></i> W3Schools</a>
-            <a href="https://www.codecademy.com/" target="_blank"><i class="fas fa-laptop-code"></i> Codecademy</a>
-        `,
-        "Hospitality": `
-            <a href="https://www.foodnetwork.com/" target="_blank"><i class="fas fa-utensils"></i> Food Network</a>
-            <a href="https://www.servsafe.com/" target="_blank"><i class="fas fa-shield-alt"></i> ServSafe</a>
-        `
-    };
-    return resources[subject] || '<p>Resources coming soon...</p>';
-}
-
-// Helper function for subject tools
-function getSubjectTools(subject) {
-    const tools = {
-        "Math Advanced": `
-            <div class="tool-item">
-                <i class="fas fa-calculator"></i>
-                <span>Scientific Calculator</span>
-            </div>
-            <div class="tool-item">
-                <i class="fas fa-pencil-ruler"></i>
-                <span>Geometry Set</span>
-            </div>
-        `,
-        "English Standard": `
-            <div class="tool-item">
-                <i class="fas fa-book"></i>
-                <span>Dictionary</span>
-            </div>
-            <div class="tool-item">
-                <i class="fas fa-highlighter"></i>
-                <span>Highlighters</span>
-            </div>
-        `,
-        "Ancient History": `
-            <div class="tool-item">
-                <i class="fas fa-landmark"></i>
-                <span>Timeline Chart</span>
-            </div>
-            <div class="tool-item">
-                <i class="fas fa-scroll"></i>
-                <span>Sourcebook</span>
-            </div>
-        `,
-        "Enterprise Computing": `
-            <div class="tool-item">
-                <i class="fas fa-laptop-code"></i>
-                <span>Code Editor</span>
-            </div>
-            <div class="tool-item">
-                <i class="fas fa-database"></i>
-                <span>Database Tool</span>
-            </div>
-        `,
-        "Hospitality": `
-            <div class="tool-item">
-                <i class="fas fa-utensils"></i>
-                <span>Recipe Book</span>
-            </div>
-            <div class="tool-item">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Checklist</span>
-            </div>
-        `
-    };
-    return tools[subject] || '<p>Tools list coming soon...</p>';
-}
-
-// Helper function to get study strategy
-function getStudyStrategy(day, totalDays, subjectCount) {
-    const phase = day / totalDays;
-    if (day === 1) return "Initial assessment - identify strengths/weaknesses";
-    if (phase < 0.3) {
-        return `Focus on understanding core concepts (${subjectCount} subjects)`;
-    }
-    if (phase < 0.6) {
-        return "Practice application of concepts + weekly reviews";
-    }
-    if (phase < 0.8) {
-        return "Past paper practice + targeted revision";
-    }
-    return "Full exam simulations + confidence building";
-}
-
-// The following function generates the plan content for the study planner.
-function generatePlanContent(subjects, dailyHours, today) {
-    // Filter out subjects with valid exam dates
-    const validSubjects = subjects.filter(s => s.daysLeft > 0);
-    if (validSubjects.length === 0) return "<div class='alert alert-warning'>No valid subjects found.</div>";
-
-    // Calculate weights and allocations
-    const totalWeight = validSubjects.reduce((sum, s) => sum + (1 / s.daysLeft) * s.priority, 0);
-
-    // Prepare plan string
-    let plan = "";
-    const totalDays = Math.max(...validSubjects.map(s => s.daysLeft));
+    
+    plan += `</div>`;
+    
+    // Generate daily schedule
     for (let day = 1; day <= totalDays; day++) {
-        plan += `<div class='day-plan'><h4>Day ${day}</h4>`;
-        // Calculate allocations for this day
-        const activeSubjects = validSubjects.filter(s => s.daysLeft >= day);
-        const dayWeight = activeSubjects.reduce((sum, s) => sum + (1 / (s.daysLeft - day + 1)) * s.priority, 0);
-
-        // Allocate hours for each subject
-        const allocations = activeSubjects.map(s => {
-            const weight = (1 / (s.daysLeft - day + 1)) * s.priority;
-            const hours = (weight / dayWeight) * dailyHours;
-            return {
-                subject: s,
-                hours: hours,
-                timeBreakdown: getTimeBreakdown(s.name, hours, s.daysLeft - day + 1, s.daysLeft)
-            };
+        const studyDate = new Date(today);
+        studyDate.setDate(today.getDate() + day);
+        const dateStr = studyDate.toDateString();
+        
+        // Check if it's an exam day
+        const examSubjects = validSubjects.filter(s => s.date.toDateString() === dateStr);
+        if (examSubjects.length > 0) {
+            plan += `<div class='exam-day'>
+                <h4><i class='fas fa-calendar-day'></i> ${dateStr} - EXAM DAY</h4>
+                <div class='exam-subjects'>`;
+                
+            examSubjects.forEach(subject => {
+                plan += `<div class='exam-subject'>
+                    <h5>${subject.name} Exam</h5>
+                    <div class='time-schedule'>
+                        <div class='time-block'><span class='time'>6:00 AM</span> Wake up, light breakfast</div>
+                        <div class='time-block'><span class='time'>6:30 AM</span> Quick review (30 mins)</div>
+                        <div class='time-block'><span class='time'>7:00 AM</span> Get ready</div>
+                        <div class='time-block'><span class='time'>8:30 AM</span> Travel to school</div>
+                        <div class='time-block important'><span class='time'>9:00 AM</span> EXAM TIME</div>
+                    </div>
+                </div>`;
+            });
+                
+            plan += `</div></div>`;
+            continue;
+        }
+        
+        // Calculate subject weights based on urgency
+        const activeSubjects = validSubjects.filter(s => s.date > studyDate);
+        const weights = activeSubjects.map(subject => {
+            const daysUntilExam = Math.floor((subject.date - studyDate) / (1000 * 60 * 60 * 24));
+            return (1 / daysUntilExam) * subject.priority;
+        });
+        
+        const totalWeight = weights.reduce((sum, w) => sum + w, 0) || 1; // Avoid division by zero
+        
+        // Calculate available time slots
+        const morningStudy = Math.min(dailyHours * 0.4, 1.5);
+        const eveningStudy = dailyHours - morningStudy;
+        
+        plan += `<div class='day-plan'>
+            <h4><i class='fas fa-calendar-day'></i> Day ${day}: ${dateStr}</h4>
+            <div class='time-schedule'>
+                <div class='time-block'><span class='time'>6:00 AM</span> Wake up</div>`;
+        
+        // MORNING SESSION - DYNAMIC TIME BLOCKS
+        let currentMorningTime = 6.5; // Start at 6:30 AM
+        const morningSubjects = [];
+        
+        // Collect morning subjects with their allocated time
+        activeSubjects.forEach((subject, index) => {
+            const hours = (weights[index] / totalWeight) * morningStudy;
+            if (hours >= 0.3) {
+                morningSubjects.push({
+                    subject,
+                    hours,
+                    timeBreakdown: getTimeBreakdown(
+                        subject.name, 
+                        hours, 
+                        Math.floor((subject.date - studyDate) / (1000 * 60 * 60 * 24)), 
+                        subject.totalDays
+                    )
+                });
+            }
         });
 
-        // Split into morning and evening (for demonstration, half-half)
-        const morningSubjects = allocations.slice(0, Math.ceil(allocations.length / 2));
-        const eveningSubjects = allocations.slice(Math.ceil(allocations.length / 2));
-
-        let currentMorningTime = 7; // 7:00 AM
-        let currentEveningTime = 16; // 4:00 PM
-
-        // Morning block
-        plan += `<div class='time-block'><span class='time'>${formatTime(currentMorningTime)}</span> Wake up & breakfast</div>`;
-        currentMorningTime += 1; // 1 hour for morning routine
-
+        // Generate time blocks for each morning subject
         morningSubjects.forEach(item => {
             const startTime = formatTime(currentMorningTime);
             currentMorningTime += item.hours;
             const endTime = formatTime(currentMorningTime);
-
+            
             plan += `<div class='time-block study'>
                 <span class='time'>${startTime} - ${endTime}</span>
                 <div class='subject-header'>
@@ -586,7 +343,7 @@ function generatePlanContent(subjects, dailyHours, today) {
                     <span class='subject-time'>${item.hours.toFixed(1)}h</span>
                 </div>
                 <div class='time-breakdown'>`;
-
+            
             item.timeBreakdown.breakdown.forEach(activity => {
                 const percentage = Math.round((activity.minutes / (item.hours * 60)) * 100);
                 plan += `<div class='activity-item'>
@@ -597,19 +354,44 @@ function generatePlanContent(subjects, dailyHours, today) {
                     </div>
                 </div>`;
             });
-
+            
             plan += `</div></div>`;
         });
+        
+        plan += `<div class='time-block'><span class='time'>${formatTime(currentMorningTime)}</span> Breakfast & get ready</div>
+                <div class='time-block'><span class='time'>8:30 AM</span> Travel to school</div>
+                <div class='time-block school'><span class='time'>9:00 AM - 3:30 PM</span> School</div>
+                <div class='time-block'><span class='time'>4:00 PM</span> Snack & break</div>`;
+        
+        // EVENING SESSION - DYNAMIC TIME BLOCKS
+        let currentEveningTime = 16.5; // Start at 4:30 PM
+        const eveningSubjects = [];
+        
+        // Collect evening subjects with their allocated time
+        activeSubjects.forEach((subject, index) => {
+            if (morningSubjects.some(item => item.subject.name === subject.name)) return;
+            
+            const hours = (weights[index] / totalWeight) * eveningStudy;
+            if (hours >= 0.3) {
+                eveningSubjects.push({
+                    subject,
+                    hours,
+                    timeBreakdown: getTimeBreakdown(
+                        subject.name, 
+                        hours, 
+                        Math.floor((subject.date - studyDate) / (1000 * 60 * 60 * 24)), 
+                        subject.totalDays
+                    )
+                });
+            }
+        });
 
-        plan += `<div class='time-block'><span class='time'>${formatTime(currentMorningTime)}</span> Lunch & break</div>`;
-        currentEveningTime = Math.max(currentEveningTime, currentMorningTime + 1);
-
-        // Evening block
+        // Generate time blocks for each evening subject
         eveningSubjects.forEach(item => {
             const startTime = formatTime(currentEveningTime);
             currentEveningTime += item.hours;
             const endTime = formatTime(currentEveningTime);
-
+            
             plan += `<div class='time-block study'>
                 <span class='time'>${startTime} - ${endTime}</span>
                 <div class='subject-header'>
@@ -618,7 +400,7 @@ function generatePlanContent(subjects, dailyHours, today) {
                     <span class='subject-time'>${item.hours.toFixed(1)}h</span>
                 </div>
                 <div class='time-breakdown'>`;
-
+            
             item.timeBreakdown.breakdown.forEach(activity => {
                 const percentage = Math.round((activity.minutes / (item.hours * 60)) * 100);
                 plan += `<div class='activity-item'>
@@ -629,19 +411,19 @@ function generatePlanContent(subjects, dailyHours, today) {
                     </div>
                 </div>`;
             });
-
+            
             plan += `</div></div>`;
         });
 
         // Handle any remaining time
         const allocatedTime = [...morningSubjects, ...eveningSubjects].reduce((sum, item) => sum + item.hours, 0);
         const remainingTime = dailyHours - allocatedTime;
-
+        
         if (remainingTime > 0.2) {
             const startTime = formatTime(currentEveningTime);
             currentEveningTime += remainingTime;
             const endTime = formatTime(currentEveningTime);
-
+            
             plan += `<div class='time-block study'>
                 <span class='time'>${startTime} - ${endTime}</span>
                 <div class='subject-header'>
@@ -658,12 +440,12 @@ function generatePlanContent(subjects, dailyHours, today) {
                     </div>
                 </div>
             </div>`;
-        } else if (activeSubjects.length === 0) {
-            const eveningStudy = dailyHours / 2;
+        }
+        else if (activeSubjects.length === 0) {
             const startTime = formatTime(currentEveningTime);
             currentEveningTime += eveningStudy;
             const endTime = formatTime(currentEveningTime);
-
+            
             plan += `<div class='time-block study'>
                 <span class='time'>${startTime} - ${endTime}</span>
                 <div class='subject-header'>
@@ -680,11 +462,25 @@ function generatePlanContent(subjects, dailyHours, today) {
                 </div>
             </div>`;
         }
+        
+        // Tab switching functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
 
         // Calculate dinner time based on end of evening study
         const dinnerTime = formatTime(currentEveningTime);
         const relaxTime = formatTime(currentEveningTime + 0.5);
-
+        
         plan += `<div class='time-block'><span class='time'>${dinnerTime}</span> Dinner</div>
                 <div class='time-block relax'><span class='time'>${relaxTime}</span> Relax/light review</div>
                 <div class='time-block'><span class='time'>10:00 PM</span> Sleep</div>
@@ -695,29 +491,364 @@ function generatePlanContent(subjects, dailyHours, today) {
             </div>
         </div>`;
     }
-
-    return plan;
+    
+    // Add general tips
+    plan += `<div class='general-tips'>
+        <h4><i class='fas fa-lightbulb'></i> Advanced Study Strategies</h4>
+        <ul>
+            <li><strong>Interleaving:</strong> Mix different subjects in a single session to improve retention</li>
+            <li><strong>Spaced Repetition:</strong> Review difficult topics at increasing intervals</li>
+            <li><strong>Active Recall:</strong> Test yourself instead of just re-reading material</li>
+            <li><strong>Pomodoro Technique:</strong> 25-minute focused sessions with 5-minute breaks</li>
+            <li><strong>Dual Coding:</strong> Combine verbal and visual information for complex topics</li>
+            <li><strong>Weekend Planning:</strong> Reserve weekends for mock exams and comprehensive reviews</li>
+        </ul>
+    </div></div>`;
+    
+    document.getElementById('studyPlanOutput').innerHTML = plan;
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Add styles
-    const styleElement = document.createElement('style');
-    styleElement.textContent = additionalStyles;
-    document.head.appendChild(styleElement);
+// Helper function to determine daily focus
+function getDailyFocus(currentDay, totalDays, difficulty) {
+    const phase = currentDay / totalDays;
+    let focus = "";
+    
+    if (difficulty === 'Beginner') {
+        if (phase < 0.3) focus = "Master fundamentals";
+        else if (phase < 0.7) focus = "Practice core concepts";
+        else focus = "Review past papers";
+    } 
+    else if (difficulty === 'Advanced') {
+        if (phase < 0.2) focus = "Advanced concepts";
+        else if (phase < 0.5) focus = "Complex applications";
+        else if (phase < 0.8) focus = "Timed practice";
+        else focus = "Exam strategies";
+    } 
+    else {
+        if (phase < 0.4) focus = "Concept integration";
+        else if (phase < 0.8) focus = "Problem areas";
+        else focus = "Full revisions";
+    }
+    
+    return focus;
+}
 
-    // Add generate plan button listener
-    document.getElementById('generatePlanBtn').addEventListener('click', generatePlan);
+// Get daily study strategy based on progress
+function getStudyStrategy(day, totalDays, subjectCount) {
+    const phase = day / totalDays;
+    
+    if (day === 1) return "Initial assessment - identify strengths/weaknesses";
+    if (phase < 0.3) {
+        return `Focus on understanding core concepts (${subjectCount} subjects)`;
+    }
+    if (phase < 0.6) {
+        return "Practice application of concepts + weekly reviews";
+    }
+    if (phase < 0.8) {
+        return "Past paper practice + targeted revision";
+    }
+    return "Full exam simulations + confidence building";
+}
 
-    // Initialize TensorFlow model
-    trainModel().then(() => {
-        console.log('Model ready for predictions');
-        document.getElementById('predictPriorityBtn')?.addEventListener('click', async () => {
-            const hours = parseFloat(document.getElementById('priorityHours').value) || 0;
-            const quality = 7; // Default quality score
-            const prediction = await predictPriority(hours, quality);
-            const value = prediction.dataSync()[0];
-            document.getElementById('priorityOutput').innerText =                `Predicted Study Priority: ${value.toFixed(2)}`;
-        });
-    });
+// Add event listener
+document.getElementById('generatePlanBtn').addEventListener('click', generatePlan);
+
+// Add CSS styles for the new elements
+const style = document.createElement('style');
+style.innerHTML = `
+.study-plan-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+.plan-meta {
+    background: #f8f9fc;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.plan-meta span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.subject-priorities {
+    background: #eef2ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.subject-priorities ol {
+    padding-left: 20px;
+}
+.subject-priorities li {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+.knowledge-summary {
+    margin-bottom: 25px;
+}
+.subject-info {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.subject-info h5 {
+    color: #2c5282;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+.exam-day {
+    background: #fff5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+.day-plan {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.time-schedule {
+    position: relative;
+    margin-left: 90px;
+    padding-left: 15px;
+    border-left: 2px solid #e2e8f0;
+}
+.time-schedule::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #4e73df;
+    opacity: 0.3;
+    z-index: 0;
+}
+.time-block {
+    position: relative;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background: white;
+    z-index: 1;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.03);
+}
+.time-block .time {
+    position: absolute;
+    left: -90px;
+    width: 80px;
+    text-align: right;
+    font-weight: 600;
+    color: #4a5568;
+}
+.time-block.study {
+    background: #f0f7ff;
+    border-left: 3px solid #4299e1;
+}
+.time-block.school {
+    background: #f0fff4;
+    border-left: 3px solid #48bb78;
+}
+.time-block.relax {
+    background: #fffaf0;
+    border-left: 3px solid #ed8936;
+}
+.time-block.important {
+    background: #fff5f7;
+    border-left: 3px solid #e53e3e;
+    font-weight: bold;
+}
+.subject-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.subject-block.extra-time {
+    border-left: 3px solid #4e73df;
+    background-color: #f8f9fc;
+}
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.subject-tag {
+    background: #4e73df;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.subject-phase {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: capitalize;
+}
+.subject-phase.early { background: #e6f4ea; color: #0d6832; }
+.subject-phase.mid { background: #fff8e6; color:rgb(221, 182, 24); }
+.subject-phase.late { background: #fde8e8; color: #c0392b; }
+.subject-time {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+.time-breakdown {
+    border-top: 1px dashed #eee;
+    padding-top: 10px;
+    margin-top: 8px;
+}
+.activity-item {
+    margin-bottom: 8px;
+    position: relative;
+    background: #f9f9f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.activity-bar {
+    position: absolute;
+    height: 100%;
+    background: rgba(78, 115, 223, 0.15);
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+.activity-details {
+    position: relative;
+    z-index: 1;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+.activity-details span:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+}
+.activity-details span:last-child {
+    color: #555;
+    text-align: right;
+    max-width: 60%;
+}
+.daily-tips {
+    background: #f0f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border-left: 3px solid #63b3ed;
+}
+.general-tips {
+    background: #f0fff4;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    border-left: 3px solid #68d391;
+}
+.general-tips ul {
+    padding-left: 20px;
+}
+.general-tips li {
+    margin-bottom: 10px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .time-schedule {
+        margin-left: 70px;
+    }
+    .time-block .time {
+        left: -70px;
+        width: 60px;
+        font-size: 0.85rem;
+    }
+    .subject-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .activity-details {
+        flex-direction: column;
+        gap: 4px;
+    }
+    .activity-details span:last-child {
+        max-width: 100%;
+        text-align: left;
+    }
+    .plan-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+`;
+document.head.appendChild(style);     
+const tf = require('@tensorflow/tfjs');
+
+// Simulated dataset
+const data = {
+  xs: tf.tensor2d([
+    [3, 7],
+    [5, 8],
+    [4, 6],
+    [6, 9],
+    [2, 5],
+    [7, 8],
+    [3, 6],
+    [5, 7],
+    [4, 6],
+    [6, 9]
+  ], [10, 2]),
+  ys: tf.tensor2d([
+    [5.2],
+    [6.3],
+    [5.1],
+    [7.4],
+    [4.0],
+    [6.8],
+    [5.0],
+    [6.0],
+    [5.2],
+    [7.5]
+  ], [10, 1])
+};
+
+// Define the model
+const model = tf.sequential();
+model.add(tf.layers.dense({ units: 1, inputShape: [2] }));
+model.compile({ optimizer: 'sgd', loss: 'meanSquaredError' });
+
+// Train the model
+async function trainModel() {
+  await model.fit(data.xs, data.ys, { epochs: 50 });
+  console.log('Model trained');
+}
+
+// Make a prediction
+async function predictPriority(studyHours, studyQuality) {
+  const input = tf.tensor2d([[studyHours, studyQuality]], [1, 2]);
+  const prediction = model.predict(input);
+  prediction.print();
+}
+
+// Example usage
+trainModel().then(() => {
+  predictPriority(5, 7); // Predict priority for 5 hours of study with quality 7
 });
