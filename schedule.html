@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Scheduler</title>
+    <link rel="stylesheet" href="schedule.css">
+</head>
+<body>
+    <header>
+        <h1>Study Scheduler</h1>
+        <p class="subtitle">Organize your study sessions efficiently.</p>
+        <button id="darkModeToggle" class="primary-button">Toggle Dark Mode</button>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2>Add Subjects</h2>
+            <form id="addSubjectForm">
+                <input type="text" id="newSubject" placeholder="Enter a subject" required>
+                <button type="submit" class="primary-button">Add Subject</button>
+            </form>
+            <ul id="subjects"></ul>
+        </section>
+
+        <section>
+            <h2>Set Schedule</h2>
+            <form id="scheduleForm">
+                <label for="scheduleType">Study Type:</label>
+                <select id="scheduleType">
+                    <option value="balanced">Balanced</option>
+                    <option value="intensive">Intensive</option>
+                </select>
+                <div id="timeFields">
+                    <label for="startTime">Start Time:</label>
+                    <input type="time" id="startTime">
+                    <label for="endTime">End Time:</label>
+                    <input type="time" id="endTime">
+                </div>
+                <label for="studyDuration">Study Time (minutes):</label>
+                <input type="number" id="studyDuration" min="15" max="180" value="90" required>
+                <label for="breakDuration">Break Time (minutes):</label>
+                <input type="number" id="breakDuration" min="5" max="60" value="30" required>
+                <button type="submit" class="primary-button">Generate Schedule</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Schedule</h2>
+            <ul id="scheduleList"></ul>
+            <div class="button-group">
+                <button id="exportButton" class="primary-button">Export Schedule</button>
+                <input type="file" id="importFile" accept=".txt" style="display:none" />
+                <button id="importButton" class="primary-button">Import Schedule</button>
+                <button id="resetButton" class="primary-button">Reset Schedule</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Timer</h2>
+            <div id="timerDisplay">
+                <p id="eventLabel">Event details will appear here.</p>
+                <p id="timer">00:00:00</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Study Scheduler</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
