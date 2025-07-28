@@ -9,8 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    <!-- Add Chart.js before other scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- TensorFlow.js library -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 </head>
 <body>
@@ -102,47 +101,25 @@
             <div class="plan-section">
                 <h2><i class="fas fa-tasks"></i> Your Personalized Study Plan</h2>
                 <div class="plan-tabs">
-                    <button class="tab-btn active" data-tab="schedule">Schedule</button>
-                    <button class="tab-btn" data-tab="analytics">Analytics</button>
+                    <button class="tab-btn active" data-tab="studyPlanOutput">Study Plan</button>
                     <button class="tab-btn" data-tab="resources">Resources</button>
-                    <button class="tab-btn" data-tab="studyTips">Study Tips</button>
+                    <button class="tab-btn" data-tab="tips">Study Tips</button>
                 </div>
 
-                <div id="studyPlanOutput" class="plan-output">
-                    <div id="schedule" class="tab-content active"></div>
-                    <div id="analytics" class="tab-content">
-                        <div class="analytics-container">
-                            <h3><i class="fas fa-chart-pie"></i> Time Allocation Analysis</h3>
-                            <div class="pie-chart-container">
-                                <canvas id="timeAllocationChart"></canvas>
-                            </div>
-                            <div class="analytics-breakdown">
-                                <h4>Daily Time Breakdown</h4>
-                                <div class="breakdown-list"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="resources" class="tab-content">
-                        <div class="resources-container">
-                            <h3><i class="fas fa-book"></i> Study Resources</h3>
-                            <div class="resource-sections"></div>
-                        </div>
-                    </div>
-                    <div id="studyTips" class="tab-content">
-                        <div class="study-tips-container">
-                            <h3><i class="fas fa-lightbulb"></i> Smart Study Strategies</h3>
-                            <div class="tips-sections">
-                                <!-- Tips sections will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
+                <div id="studyPlanOutput" class="tab-content active"></div>
+                <div id="resources" class="tab-content">
+                    <h3>Recommended Resources</h3>
+                    <div id="dynamicResources"></div>
+                </div>
+                <div id="tips" class="tab-content">
+                    <h3>Effective Study Techniques</h3>
+                    <div id="studyTips"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Your existing planner.js script -->
     <script src="planner.js"></script>
 
     <!-- TensorFlow.js Study Priority Predictor Script -->
